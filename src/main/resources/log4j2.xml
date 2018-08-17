@@ -1,22 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="INFO">
     <Appenders>
-        <RollingFile name="RollingFile" fileName="/mnt/logs/maven-indexer.log"
-                     filePattern="/mnt/logs/${date:yyyy-MM}/%d{yyyy-MM-dd}-%i.log.gz">
+        <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{DEFAULT} [%t] %-5level %logger{36} - %msg%n" />
-            <Policies>
-                <!--<TimeBasedTriggeringPolicy />&lt;!&ndash; Rotated everyday &ndash;&gt;-->
-                <SizeBasedTriggeringPolicy size="10 MB"/> <!-- Or every 10 MB -->
-            </Policies>
-            <DefaultRolloverStrategy max="10"/>
-        </RollingFile>
+        </Console>
         <!--<File name="File" fileName="/mnt/logs/crawlj.log" bufferedIO="false" MaxFileSize="10MB" MaxBackupIndex="10" >-->
         <!--<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />-->
         <!--</File>-->
     </Appenders>
     <Loggers>
         <Root level="info">
-            <AppenderRef ref="RollingFile" />
+            <AppenderRef ref="Console" />
         </Root>
     </Loggers>
 </Configuration>
