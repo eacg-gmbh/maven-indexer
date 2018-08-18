@@ -209,7 +209,8 @@ public class CentralMojo extends SuperMojo {
             logger.info(msg);
             System.out.println(msg);
         } catch (Exception exception){
-            logger.error("ERROR in closeTheRabbit - ", exception.getStackTrace());
+            logger.error("ERROR in closeTheRabbit - ", exception.getMessage());
+            logger.error(exception);
         }
     }
 

@@ -31,7 +31,7 @@ public class CentralMojoSha extends CentralMojo {
             createIfNotExist(artifactInfo, artifactInfo.md5, "md5");
         } catch (Exception ex) {
             logger.error("Error in processArtifact - " + ex.toString());
-            logger.error(ex.getStackTrace());
+            logger.error(ex);
         }
     }
 

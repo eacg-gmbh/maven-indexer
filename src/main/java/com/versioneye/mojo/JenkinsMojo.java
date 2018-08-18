@@ -16,7 +16,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 @Mojo( name = "jenkins", defaultPhase = LifecyclePhase.PROCESS_SOURCES )
 public class JenkinsMojo extends CentralMojo {
 
-    static final Logger logger = LogManager.getLogger(ClojarsMojo.class.getName());
+    static final Logger logger = LogManager.getLogger(JenkinsMojo.class.getName());
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         try{
