@@ -49,7 +49,7 @@
     <bean id="artefactDao"           class="com.versioneye.persistence.mongodb.ArtefactDao" >
         <property name="mongoDB" ref="mongoDb" />
     </bean>
-
+
     <!-- Start Maven Repositories -->
 
     <!-- MIRROR in California -->

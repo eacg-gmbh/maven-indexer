@@ -98,12 +98,15 @@ public class CentralMojo extends SuperMojo {
                 logger.info("curser i: " + i);
             }
 
-            if ( indexReader.isDeleted( i ) )
+            if ( indexReader.isDeleted( i ) ) {
+                logger.info("-- Reader Deleted --");
                 return ;
+            }
 
             final Document doc = indexReader.document( i );
             final ArtifactInfo artifactInfo = IndexUtils.constructArtifactInfo(doc, context);
             if (artifactInfo == null || artifactInfo.groupId == null || artifactInfo.artifactId == null){
+                logger.info("-- Artifact Info Incomplete --");
                 return ;
             }
 
@@ -111,6 +114,7 @@ public class CentralMojo extends SuperMojo {
             createIfNotExist(artifactInfo, artifactInfo.md5, "md5");
 
             if (skipKnown && productDao.doesVersionExistAlreadyByGA(artifactInfo.groupId.toLowerCase(), artifactInfo.artifactId.toLowerCase(), artifactInfo.version)){
+                logger.info("-- Skipping --");
                 return ;
             }
 
@@ -124,6 +128,7 @@ public class CentralMojo extends SuperMojo {
 
     protected void processArtifact(ArtifactInfo artifactInfo) {
         String gav = artifactInfo.groupId + ":" + artifactInfo.artifactId + ":pom:" + artifactInfo.version;
+        logger.info("-- Processing {}", gav);
         sendGav(gav, artifactInfo.lastModified);
     }
 
@@ -221,7 +226,7 @@ public class CentralMojo extends SuperMojo {
             mavenRepository = new MavenRepository();
             mavenRepository.setId("central");
             mavenRepository.setName("central");
-            mavenRepository.setUrl("http://repo.maven.apache.org/maven2");
+            mavenRepository.setUrl("https://repo.maven.apache.org/maven2");
             mavenRepository.setLanguage("Java");
         }
     }
