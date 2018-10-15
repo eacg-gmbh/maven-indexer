@@ -114,7 +114,7 @@ public class CentralMojo extends SuperMojo {
             createIfNotExist(artifactInfo, artifactInfo.md5, "md5");
 
             if (skipKnown && productDao.doesVersionExistAlreadyByGA(artifactInfo.groupId.toLowerCase(), artifactInfo.artifactId.toLowerCase(), artifactInfo.version)){
-                logger.info("-- Skipping --");
+                logger.info("-- Skipping " + artifactInfo.groupId + ":" + artifactInfo.artifactId + ":" + artifactInfo.version);
                 return ;
             }
 
