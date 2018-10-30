@@ -1,27 +1,45 @@
 package com.versioneye.service;
 
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.pool.PooledConnectionFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import javax.jms.Connection;
+import javax.jms.JMSException;
 
 public class RabbitMqService {
 
     static final Logger logger = LogManager.getLogger(RabbitMqService.class.getName());
 
-    public static Connection getConnection(String host, int port) throws Exception{
-        ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost(host);
-        factory.setPort(port);
-        String rabbitmqUser = System.getenv("RM_PORT_USER");
-        String rabbitmqCred = System.getenv("RM_PORT_CRED");
-        if (rabbitmqUser != null && !rabbitmqUser.isEmpty()) {
-            logger.info("Using credentials for RabbitMQ");
-            factory.setUsername(rabbitmqUser);
-            factory.setPassword(rabbitmqCred);
-        }
+    private static boolean isQueueInitialized = false;
+    private static PooledConnectionFactory pooledConnectionFactory;
 
-        return factory.newConnection();
+    private static void initQueue() throws JMSException {
+        if (isQueueInitialized) return;
+
+        // Create a connection factory.
+        final ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("amqps://b-b4b5a14b-3023-4fbf-bdc2-9fbdf1690f16-1.mq.eu-central-1.amazonaws.com:5671");
+
+        // Pass the username and password.
+        String activeMqUsername = System.getenv("RM_PORT_USER");
+        String activeMqPassword = System.getenv("RM_PORT_CRED");
+        connectionFactory.setUserName(activeMqUsername);
+        connectionFactory.setPassword(activeMqPassword);
+
+        // Create a pooled connection factory.
+        pooledConnectionFactory = new PooledConnectionFactory();
+        pooledConnectionFactory.setConnectionFactory(connectionFactory);
+        pooledConnectionFactory.setMaxConnections(10);
+
+        isQueueInitialized = true;
+    }
+
+    public static Connection getConnection(String host, int port) throws Exception {
+        // Establish a connection for the producer.
+        final Connection producerConnection = pooledConnectionFactory.createConnection();
+        producerConnection.start();
+        return producerConnection;
     }
 
 }

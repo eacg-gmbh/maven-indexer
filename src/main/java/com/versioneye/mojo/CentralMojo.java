@@ -1,7 +1,5 @@
 package com.versioneye.mojo;
 
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
 import com.versioneye.domain.Artefact;
 import com.versioneye.maven.MavenIndexer;
 import com.versioneye.service.RabbitMqService;
@@ -22,6 +20,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.versioneye.domain.MavenRepository;
 import com.versioneye.service.ProductService;
 
+import javax.jms.*;
 import java.util.Date;
 import java.util.Properties;
 import java.util.concurrent.*;
@@ -39,7 +38,7 @@ public class CentralMojo extends SuperMojo {
 
     protected final static String QUEUE_NAME = "maven_index_worker";
     protected Connection connection;
-    protected Channel channel;
+    protected Session producerSession;
 
 
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -175,8 +174,20 @@ public class CentralMojo extends SuperMojo {
     protected void sendGav(String gav, long lastModified){
         try{
             String message = mavenRepository.getName() + "::" + mavenRepository.getUrl() + "::" + gav + "::" + lastModified;
-            channel.queueDeclare(QUEUE_NAME, true, false, false, null);
-            channel.basicPublish("", QUEUE_NAME, null, message.getBytes());
+
+            // Create a queue named "MyQueue".
+            Destination producerDestination = producerSession.createQueue(QUEUE_NAME);
+
+            // Create a producer from the session to the queue.
+            MessageProducer producer = producerSession.createProducer(producerDestination);
+            producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+
+            // Create a message.
+            TextMessage producerMessage = producerSession.createTextMessage(message);
+
+            // Send the message.
+            producer.send(producerMessage);
+
             logger.info(" [x] Sent '" + message + "'");
         } catch (Exception exception) {
             logger.error("urlToPom: " + gav + " - " + exception.toString());
@@ -195,10 +206,9 @@ public class CentralMojo extends SuperMojo {
                 rabbitmqPort = properties.getProperty("rabbitmq_port");
             }
             connection = RabbitMqService.getConnection(rabbitmqAddr, new Integer(rabbitmqPort));
-            channel = connection.createChannel();
-            String msg = "Connected to RabbitMQ " + rabbitmqAddr + ":" + rabbitmqPort;
-            logger.info(msg);
-            System.out.println(msg);
+            // Create a session.
+            producerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            logger.info("Connected to ActiveMQ");
         } catch (Exception exception){
             logger.error("ERROR in initTheRabbit - " + exception.toString());
             logger.error("ERROR in initTheRabbit - ", exception);
@@ -208,7 +218,6 @@ public class CentralMojo extends SuperMojo {
 
     protected void closeTheRabbit(){
         try{
-            channel.close();
             connection.close();
             String msg = "Connection to RabbitMQ closed.";
             logger.info(msg);
