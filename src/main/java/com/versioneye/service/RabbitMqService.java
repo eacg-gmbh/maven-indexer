@@ -19,7 +19,7 @@ public class RabbitMqService {
         if (isQueueInitialized) return;
 
         // Create a connection factory.
-        final ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("amqps://b-b4b5a14b-3023-4fbf-bdc2-9fbdf1690f16-1.mq.eu-central-1.amazonaws.com:5671");
+        final ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(System.getenv("MQ_URI"));
 
         // Pass the username and password.
         String activeMqUsername = System.getenv("RM_PORT_USER");
