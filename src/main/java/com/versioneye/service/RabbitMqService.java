@@ -1,7 +1,7 @@
 package com.versioneye.service;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.pool.PooledConnectionFactory;
+import org.apache.activemq.jms.pool.PooledConnectionFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -36,6 +36,7 @@ public class RabbitMqService {
     }
 
     public static Connection getConnection(String host, int port) throws Exception {
+        initQueue();
         // Establish a connection for the producer.
         final Connection producerConnection = pooledConnectionFactory.createConnection();
         producerConnection.start();
