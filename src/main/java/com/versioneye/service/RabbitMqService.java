@@ -31,6 +31,7 @@ public class RabbitMqService {
         pooledConnectionFactory = new PooledConnectionFactory();
         pooledConnectionFactory.setConnectionFactory(connectionFactory);
         pooledConnectionFactory.setMaxConnections(10);
+        pooledConnectionFactory.start();
 
         isQueueInitialized = true;
     }
