@@ -60,8 +60,6 @@ public class CentralMojo extends SuperMojo {
 
     protected void doUpdateFromIndex() {
         try{
-            initTheRabbit();
-
             String centralCache = getCacheDirectory(mavenRepository.getName());
             String centralIndex = getIndexDirectory(mavenRepository.getName());
 
@@ -80,8 +78,6 @@ public class CentralMojo extends SuperMojo {
             context.releaseIndexSearcher(searcher);
 
             mavenIndexer.closeIndexer();
-
-            closeTheRabbit();
         } catch (Exception ex){
             logger.error("ERROR in doUpdateFromIndex" + ex.getMessage());
             logger.error("ERROR in doUpdateFromIndex", ex);
@@ -173,6 +169,7 @@ public class CentralMojo extends SuperMojo {
         try{
             String message = mavenRepository.getName() + "::" + mavenRepository.getUrl() + "::" + gav + "::" + lastModified;
             // Create a session.
+            initTheRabbit();
             Session producerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
             // Create a queue named "MyQueue".
@@ -191,6 +188,7 @@ public class CentralMojo extends SuperMojo {
             logger.info(" [x] Sent '" + message + "'");
             producer.close();
             producerSession.close();
+            closeTheRabbit();
         } catch (Exception exception) {
             logger.error("urlToPom: " + gav + " - " + exception.toString());
             logger.error("Exception in sendGav - ", exception);
