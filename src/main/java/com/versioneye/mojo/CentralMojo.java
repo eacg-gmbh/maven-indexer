@@ -38,8 +38,6 @@ public class CentralMojo extends SuperMojo {
 
     protected final static String QUEUE_NAME = "maven_index_worker";
     protected Connection connection;
-    protected Session producerSession;
-
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         try{
@@ -174,6 +172,8 @@ public class CentralMojo extends SuperMojo {
     protected void sendGav(String gav, long lastModified){
         try{
             String message = mavenRepository.getName() + "::" + mavenRepository.getUrl() + "::" + gav + "::" + lastModified;
+            // Create a session.
+            Session producerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
             // Create a queue named "MyQueue".
             Destination producerDestination = producerSession.createQueue(QUEUE_NAME);
@@ -189,6 +189,8 @@ public class CentralMojo extends SuperMojo {
             producer.send(producerMessage);
 
             logger.info(" [x] Sent '" + message + "'");
+            producer.close();
+            producerSession.close();
         } catch (Exception exception) {
             logger.error("urlToPom: " + gav + " - " + exception.toString());
             logger.error("Exception in sendGav - ", exception);
@@ -206,8 +208,6 @@ public class CentralMojo extends SuperMojo {
                 rabbitmqPort = properties.getProperty("rabbitmq_port");
             }
             connection = RabbitMqService.getConnection(rabbitmqAddr, new Integer(rabbitmqPort));
-            // Create a session.
-            producerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             logger.info("Connected to ActiveMQ");
         } catch (Exception exception){
             logger.error("ERROR in initTheRabbit - " + exception.toString());
